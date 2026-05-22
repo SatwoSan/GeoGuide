@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}Your {{ location }} Itinerary{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-40">Your {{ location }} Itinerary</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Trip Details</h5>
+            <span class="badge bg-primary">{{ transportation|title }} Trip</span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <h6>Location</h6>
+                    <p>{{ location }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Transportation</h6>
+                    <p>{{ transportation|replace('_', ' ')|title }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Duration</h6>
+                    <p>{{ itinerary.days|length }} days</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Links Section -->
+    {% if booking_links and booking_links.urls %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">{{ booking_links.name }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for link in booking_links.urls %}
+                <div class="col-md-4 mb-2">
+                    <a href="{{ link.url }}" target="_blank" class="btn btn-outline-primary w-100">
+                        {{ link.name }}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Packing & Emergency Info -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Packing Recommendations</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for item in itinerary.packing_recommendations %}
+                        <li class="list-group-item">{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Emergency Contacts</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Local Emergency:</strong> {{ itinerary.emergency_contacts.local_emergency }}</li>
+                        <li class="list-group-item"><strong>Tourist Police:</strong> {{ itinerary.emergency_contacts.tourist_police }}</li>
+                        <li class="list-group-item"><strong>Nearest Hospital:</strong> {{ itinerary.emergency_contacts.nearest_hospital }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transportation Notes -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Transportation Notes</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ itinerary.transportation_notes }}</p>
+        </div>
+    </div>
+
+    <!-- Day-by-Day Itinerary -->
+    <h2 class="mb-40">Day-by-Day Schedule</h2>
+    
+    <div class="accordion" id="itineraryAccordion">
+        {% for day in itinerary.days %}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{ day.day_number }}">
+                <button class="accordion-button {% if loop.index > 1 %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ day.day_number }}" aria-expanded="{% if loop.index == 1 %}true{% else %}false{% endif %}" aria-controls="collapse{{ day.day_number }}">
+                    <div class="d-flex justify-content-between w-100 me-3">
+                        <span>Day {{ day.day_number }}: {{ day.date }}</span>
+                        <span class="text-muted">{{ day.weather_forecast }}</span>
+                    </div>
+                </button>
+            </h2>
+            <div id="collapse{{ day.day_number }}" class="accordion-collapse collapse {% if loop.index == 1 %}show{% endif %}" aria-labelledby="heading{{ day.day_number }}" data-bs-parent="#itineraryAccordion">
+                <div class="accordion-body">
+                    <div class="timeline">
+                        {% for activity in day.activities %}
+                        <div class="timeline-item">
+                            <div class="timeline-time">{{ activity.time }}</div>
+                            <div class="timeline-content">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ activity.activity }}</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">{{ activity.location }}</h6>
+                                        <p class="card-text">{{ activity.description }}</p>
+                                        
+                                        {% if activity.transportation is defined %}
+                                        <div class="mb-2">
+                                            <span class="badge bg-info text-dark">
+                                                <i class="bi bi-signpost-split"></i> {{ activity.transportation }}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if activity.tips and activity.tips|length > 0 %}
+                                        <div class="mt-3">
+                                            <h6><i class="bi bi-lightbulb"></i> Tips:</h6>
+                                            <ul class="mb-0">
+                                                {% for tip in activity.tips %}
+                                                <li>{{ tip }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-between mt-4 mb-5">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Print Itinerary
+        </button>
+    </div>
+</div>
+
+<style>
+    /* Timeline CSS */
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+        display: flex;
+    }
+    
+    .timeline-time {
+        width: 150px;
+        min-width: 150px;
+        text-align: right;
+        padding-right: 20px;
+        position: relative;
+        align-self: flex-start;
+        padding-top: 15px;
+        font-weight: bold;
+    }
+    
+    .timeline-content {
+        flex-grow: 1;
+        padding-left: 20px;
+        position: relative;
+    }
+    
+    .timeline-content:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+    
+    .timeline-content:after {
+        content: '';
+        position: absolute;
+        left: -6px;
+        top: 20px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #6c757d;
+        z-index: 1;
+    }
+    .mb-40{
+        color: white;
+    }
+    
+    @media print {
+        .btn, .accordion-button:after {
+            display: none !important;
+        }
+        
+        .accordion-button {
+            background: none !important;
+            color: #000 !important;
+            box-shadow: none !important;
+        }
+        
+        .accordion-collapse {
+            display: block !important;
+        }
+    }
+</style>
+{% endblock %}

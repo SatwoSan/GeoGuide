@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Travel Preferences{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">Your Travel Preferences</h3>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Tell us about your travel style and preferences so we can provide personalized recommendations.</p>
+                
+                <form method="POST">
+                    <h4 class="mb-3">Travel Style</h4>
+                    <div class="mb-4">
+                        <label class="form-label">How would you describe your travel style?</label>
+                        <select name="travel_style" class="form-select">
+                            <option value="relaxed" {% if user.preferences and user.preferences.travel_style == 'relaxed' %}selected{% endif %}>Relaxed - I like to take it easy and enjoy the atmosphere</option>
+                            <option value="balanced" {% if user.preferences and user.preferences.travel_style == 'balanced' %}selected{% endif %}>Balanced - A mix of activities and downtime</option>
+                            <option value="active" {% if user.preferences and user.preferences.travel_style == 'active' %}selected{% endif %}>Active - I want to see and do as much as possible</option>
+                            <option value="cultural" {% if user.preferences and user.preferences.travel_style == 'cultural' %}selected{% endif %}>Cultural - I focus on history, art, and local traditions</option>
+                            <option value="adventurous" {% if user.preferences and user.preferences.travel_style == 'adventurous' %}selected{% endif %}>Adventurous - I seek thrills and unique experiences</option>
+                        </select>
+                    </div>
+
+                    <h4 class="mb-3">Interests</h4>
+                    <div class="mb-4">
+                        <label class="form-label">What are you interested in? (Select all that apply)</label>
+                        <div class="row">
+                            {% set interests = ['History', 'Art', 'Food', 'Architecture', 'Nature', 'Shopping', 'Photography', 'Music', 'Nightlife', 'Sports', 'Wildlife', 'Beaches', 'Museums'] %}
+                            
+                            {% for interest in interests %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="{{ interest|lower }}" id="interest_{{ interest|lower }}"
+                                            {% if user.preferences and interest|lower in user.preferences.interests %}checked{% endif %}>
+                                        <label class="form-check-label" for="interest_{{ interest|lower }}">{{ interest }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <h4 class="mb-3">Accessibility & Special Requirements</h4>
+                    <div class="mb-4">
+                        <label class="form-label">Do you have any accessibility requirements? (Select all that apply)</label>
+                        <div class="row">
+                            {% set accessibility = ['Wheelchair access', 'Limited mobility', 'Visual impairment', 'Hearing impairment', 'No stairs preferred', 'Need frequent rest stops'] %}
+                            
+                            {% for need in accessibility %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="accessibility_needs" value="{{ need|lower|replace(' ', '_') }}" id="access_{{ need|lower|replace(' ', '_') }}"
+                                            {% if user.preferences and need|lower|replace(' ', '_') in user.preferences.accessibility_needs %}checked{% endif %}>
+                                        <label class="form-check-label" for="access_{{ need|lower|replace(' ', '_') }}">{{ need }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Are you traveling with pets?</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="has_pets" id="has_pets_yes" value="yes" 
+                                {% if user.preferences and user.preferences.has_pets %}checked{% endif %}>
+                            <label class="form-check-label" for="has_pets_yes">Yes</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="has_pets" id="has_pets_no" value="no"
+                                {% if user.preferences and not user.preferences.has_pets %}checked{% endif %}>
+                            <label class="form-check-label" for="has_pets_no">No</label>
+                        </div>
+                    </div>
+
+                    <h4 class="mb-3">Environment Preferences</h4>
+                    <div class="mb-4">
+                        <label class="form-label">What types of environments do you prefer? (Select all that apply)</label>
+                        <div class="row">
+                            {% set environments = ['Urban', 'Rural', 'Coastal', 'Mountains', 'Desert', 'Forests', 'Islands', 'Countryside', 'Lakeside'] %}
+                            
+                            {% for env in environments %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="environments" value="{{ env|lower }}" id="env_{{ env|lower }}"
+                                            {% if user.preferences and env|lower in user.preferences.preferred_environments %}checked{% endif %}>
+                                        <label class="form-check-label" for="env_{{ env|lower }}">{{ env }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <h4 class="mb-3">Budget & Activity Level</h4>
+                    <div class="mb-4">
+                        <label class="form-label">What is your budget level?</label>
+                        <select name="budget" class="form-select">
+                            <option value="budget" {% if user.preferences and user.preferences.budget_level == 'budget' %}selected{% endif %}>Budget - Looking for affordable options</option>
+                            <option value="moderate" {% if user.preferences and user.preferences.budget_level == 'moderate' %}selected{% endif %}>Moderate - Mid-range spending</option>
+                            <option value="luxury" {% if user.preferences and user.preferences.budget_level == 'luxury' %}selected{% endif %}>Luxury - Willing to spend more for quality experiences</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">What is your preferred activity level?</label>
+                        <select name="activity_level" class="form-select">
+                            <option value="low" {% if user.preferences and user.preferences.activity_level == 'low' %}selected{% endif %}>Low - Minimal walking, plenty of rest</option>
+                            <option value="moderate" {% if user.preferences and user.preferences.activity_level == 'moderate' %}selected{% endif %}>Moderate - Some walking, balanced activity</option>
+                            <option value="high" {% if user.preferences and user.preferences.activity_level == 'high' %}selected{% endif %}>High - Lots of walking, hiking, or physical activity</option>
+                        </select>
+                    </div>
+
+                    <h4 class="mb-3">Dietary Preferences</h4>
+                    <div class="mb-4">
+                        <label class="form-label">Do you have any dietary restrictions? (Select all that apply)</label>
+                        <div class="row">
+                            {% set diets = ['Vegetarian', 'Vegan', 'Gluten-free', 'Dairy-free', 'Halal', 'Kosher', 'Nut allergies', 'Seafood allergies'] %}
+                            
+                            {% for diet in diets %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="dietary_restrictions" value="{{ diet|lower|replace('-', '_') }}" id="diet_{{ diet|lower|replace('-', '_') }}"
+                                            {% if user.preferences and diet|lower|replace('-', '_') in user.preferences.dietary_restrictions %}checked{% endif %}>
+                                        <label class="form-check-label" for="diet_{{ diet|lower|replace('-', '_') }}">{{ diet }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Save Preferences</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

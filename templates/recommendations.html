@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Recommended Places{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">Recommended Places in {{ location }}</h3>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Based on your preferences, here are some places we think you'll enjoy. Select the ones you'd like to include in your itinerary.</p>
+                
+                <form action="{{ url_for('plan_itinerary') }}" method="post">
+                    <input type="hidden" name="location" value="{{ location }}">
+                    <input type="hidden" name="transportation" value="{{ transportation }}">
+                    
+                    <div class="row mb-4">
+                        {% for poi in recommendations.recommendations %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="selected_pois" value="{{ poi.name }}" id="poi_{{ loop.index }}" checked>
+                                        <label class="form-check-label h5 mb-0" for="poi_{{ loop.index }}">
+                                            {{ poi.name }}
+                                        </label>
+                                    </div>
+                                    <span class="badge {% if poi.budget_category == 'budget' %}bg-success{% elif poi.budget_category == 'mid-range' %}bg-info{% else %}bg-warning text-dark{% endif %}">
+                                        {{ poi.budget_category|capitalize }}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <span class="badge bg-secondary me-2">{{ poi.type }}</span>
+                                        <span class="badge bg-primary">{{ poi.estimated_visit_duration }}</span>
+                                    </div>
+                                    
+                                    <p class="card-text">{{ poi.description }}</p>
+                                    
+                                    <div class="mt-3">
+                                        <p class="mb-1"><strong>Why visit:</strong></p>
+                                        <ul class="ps-3">
+                                            {% for reason in poi.reasons %}
+                                                <li>{{ reason }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <p class="mb-1"><small><strong>Best time:</strong> {{ poi.best_time_to_visit }}</small></p>
+                                            <p class="mb-1"><small><strong>Crowd level:</strong> {{ poi.estimated_crowd_level }}</small></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-1">
+                                                <small>
+                                                    <strong>Pet friendly:</strong> 
+                                                    {% if poi.pet_friendly %}Yes{% else %}No{% endif %}
+                                                </small>
+                                            </p>
+                                            {% if poi.accessibility_features %}
+                                            <p class="mb-1">
+                                                <small>
+                                                    <strong>Accessibility:</strong>
+                                                    {% for feature in poi.accessibility_features[:2] %}
+                                                        {% if loop.index > 1 %}, {% endif %}{{ feature }}
+                                                    {% endfor %}
+                                                    {% if poi.accessibility_features|length > 2 %}...{% endif %}
+                                                </small>
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Create Your Itinerary</h5>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="mb-3">
+                                        <label for="start_date" class="form-label">Start Date</label>
+                                        <input type="date" class="form-control" id="start_date" name="start_date" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="mb-3">
+                                        <label for="end_date" class="form-label">End Date</label>
+                                        <input type="date" class="form-control" id="end_date" name="end_date" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100">Create Itinerary</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default dates (today and tomorrow)
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Format dates for input fields (YYYY-MM-DD)
+    document.getElementById('start_date').value = today.toISOString().split('T')[0];
+    document.getElementById('end_date').value = tomorrow.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

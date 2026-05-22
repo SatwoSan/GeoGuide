@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Get Recommendations{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">Discover Points of Interest</h3>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Tell us where you're going, and we'll recommend places based on your preferences.</p>
+                
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" placeholder="City, Country, or Region" required>
+                        <div class="form-text">Enter the name of the place you want to explore</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="radius" class="form-label">Search Radius (km)</label>
+                        <select class="form-select" id="radius" name="radius">
+                            <option value="1">1 km</option>
+                            <option value="3">3 km</option>
+                            <option value="5" selected>5 km</option>
+                            <option value="10">10 km</option>
+                            <option value="20">20 km</option>
+                            <option value="50">50 km</option>
+                        </select>
+                        <div class="form-text">How far from your location should we search?</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="transportation" class="form-label">Transportation Method</label>
+                        <select class="form-select" id="transportation" name="transportation">
+                            {% for option in transportation_options %}
+                                <option value="{{ option.id }}">{{ option.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">How do you plan to get around?</div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Your Travel Profile</h5>
+                            <p class="card-text">Recommendations will be based on your preferences:</p>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <p><strong>Travel Style:</strong> {{ user.preferences.travel_style|capitalize }}</p>
+                                    <p><strong>Budget Level:</strong> {{ user.preferences.budget_level|capitalize }}</p>
+                                    <p><strong>Activity Level:</strong> {{ user.preferences.activity_level|capitalize }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Interests:</strong> 
+                                        {% for interest in user.preferences.interests %}
+                                            {% if loop.index > 1 %}, {% endif %}{{ interest|capitalize }}
+                                        {% endfor %}
+                                    </p>
+                                    <p>
+                                        <strong>Pet-Friendly:</strong> 
+                                        {% if user.preferences.has_pets %}Yes{% else %}No{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2 text-end">
+                                <a href="{{ url_for('preferences') }}" class="btn btn-sm btn-outline-primary">Update Preferences</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Find Places</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
