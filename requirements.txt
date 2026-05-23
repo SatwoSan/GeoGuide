@@ -1,0 +1,7 @@
+Flask
+Flask-SQLAlchemy
+Werkzeug
+google-generativeai
+python-dotenv
+requests
+gunicorn
